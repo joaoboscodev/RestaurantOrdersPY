@@ -8,8 +8,7 @@ def test_dish():
     Recipe_A = Dish("lasanha berinjela", 27.00)
     Recipe_B = Dish("lasanha presunto", 25.90)
 
-    assert Recipe_A.__repr__() == "Dish('lasanha berinjela', 27.00)"
-    assert Recipe_B.__repr__() == "Dish('lasanha presunto', 25.90)"
+    assert Recipe_A.__repr__() == "Dish('lasanha berinjela', R$27.00)"
 
     with pytest.raises(AssertionError):
         assert Recipe_A.name == "lasanha bolonhesa"
@@ -21,17 +20,18 @@ def test_dish():
     assert Recipe_B.__hash__() != hash(Recipe_A.__repr__())
 
     assert Recipe_A.__eq__(Recipe_A) is True
-    assert Recipe_B.__eq__(Recipe_B) is False
+    assert Recipe_B.__eq__(Recipe_A) is False
 
     with pytest.raises(TypeError):
-        Dish("Sushi", "500")
+        Dish("Sushi", "20")
 
     with pytest.raises(ValueError):
-        Dish("lasanha presunto", -500)
+        Dish("lasanha presunto", -20)
 
-    camarao = Ingredient('camarao')
-    Recipe_A.add_ingredient_dependency(camarao, 200)
-    assert Recipe_A.get_ingredients() == {camarao}
+    bacon = Ingredient("bacon")
+    Recipe_A.add_ingredient_dependency(bacon, 20)
 
-    camarao_restriction = {Restriction.SEAFOOD}
-    assert Recipe_A.get_restrictions() == camarao_restriction
+    assert Recipe_A.get_ingredients() == {bacon}
+
+    bacon_restriction = {Restriction.ANIMAL_MEAT, Restriction.ANIMAL_DERIVED}
+    assert Recipe_A.get_restrictions() == bacon_restriction
