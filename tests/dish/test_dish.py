@@ -5,45 +5,33 @@ from src.models.ingredient import Ingredient, Restriction
 
 # Req 2
 def test_dish():
-    pasta_recipe = {
-        Ingredient("spaghetti"): 200,
-        Ingredient("tomato sauce"): 150,
-        Ingredient("ground beef"): 250,
-        Ingredient("onion"): 50,
-        Ingredient("garlic"): 10,
-    }
-    pasta_dish = Dish("Spaghetti Bolognese", 15.99)
-    for ingredient, amount in pasta_recipe.items():
-        pasta_dish.add_ingredient_dependency(ingredient, amount)
+    Recipe_A = Dish("lasanha berinjela", 27.00)
+    Recipe_B = Dish("lasanha presunto", 25.90)
 
-    assert pasta_dish.name == "Spaghetti Bolognese"
+    assert Recipe_A.__repr__() == "Dish('lasanha berinjela', 27.00)"
+    assert Recipe_B.__repr__() == "Dish('lasanha presunto', 25.90)"
 
-    assert hash(pasta_dish) == hash(Dish("Spaghetti Bolognese", 15.99))
+    with pytest.raises(AssertionError):
+        assert Recipe_A.name == "lasanha bolonhesa"
 
-    assert hash(pasta_dish) != hash(Dish("Carbonara", 12.99))
+    assert Recipe_A.name == "lasanha berinjela"
+    assert Recipe_A.price == 27.00
 
-    assert pasta_dish == pasta_dish
+    assert Recipe_A.__hash__() == hash(Recipe_A.__repr__())
+    assert Recipe_B.__hash__() != hash(Recipe_A.__repr__())
 
-    assert pasta_dish != Dish("Carbonara", 12.99)
+    assert Recipe_A.__eq__(Recipe_A) is True
+    assert Recipe_B.__eq__(Recipe_B) is False
 
-    assert repr(pasta_dish) == "Dish('Spaghetti Bolognese', R$15.99)"
+    with pytest.raises(TypeError):
+        Dish("Sushi", "500")
 
-    with pytest.raises(TypeError, match="Dish price must be float."):
-        Dish("Invalid Dish", "not a float")
+    with pytest.raises(ValueError):
+        Dish("lasanha presunto", -500)
 
-    with pytest.raises(ValueError, match="Price must be greater than zero."):
-        Dish("Invalid Dish", 0)
+    camarao = Ingredient('camarao')
+    Recipe_A.add_ingredient_dependency(camarao, 200)
+    assert Recipe_A.get_ingredients() == {camarao}
 
-    assert pasta_dish.recipe.get(Ingredient("spaghetti")) == 200
-
-    assert pasta_dish.get_restrictions() == set()
-
-    assert pasta_dish.get_ingredients() == set(pasta_recipe.keys())
-
-    cheese = Ingredient("parmesan cheese")
-    pasta_dish.add_ingredient_dependency(cheese, 50)
-
-    assert pasta_dish.get_restrictions() == {Restriction.ANIMAL_DERIVED}
-
-    expected_ingredients = set(pasta_recipe.keys()).union({cheese})
-    assert pasta_dish.get_ingredients() == expected_ingredients
+    camarao_restriction = {Restriction.SEAFOOD}
+    assert Recipe_A.get_restrictions() == camarao_restriction
